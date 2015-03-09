@@ -17,6 +17,10 @@ Retrieve your Neurio sensor data directly from the sensor itself.
                            UTC
 
 
+Requirements:
+    pip install BeautifulSoup4
+    pip install pytz
+
 Important note: This may break if the format of the Neurio web interface
 changes as we are parsing HTML.
 
