@@ -18,28 +18,6 @@ import pytz
 import urllib2
 
 
-logging.basicConfig(format='%(message)s', level=logging.INFO)
-
-
-def print_json(readings, timestamp):
-    """ Log data in json strings with timestamp
-    """
-    json_values = json.dumps(readings)
-    logline = "%s %s" % (timestamp, json_values)
-    logging.info(logline)
-
-
-def print_keyvalue(readings, timestamp):
-    """ Log data in Splunk-friendly key=value pairs
-    """
-    for channel in readings:
-        keyvalues = []
-        for key, value in readings[channel].iteritems():
-            keyvalues.append("%s=%s" % (key.replace(' ', ''), value))
-        logline = "%s %s" % (timestamp, ', '.join(keyvalues))
-        logging.info(logline)
-
-
 def fetch_page(url, localtime=True):
     """ Fetches the page with readings and returns (timestamp, page contents)
     """
@@ -104,20 +82,48 @@ def get_sensor_readings(parsed_data):
     return sensor_readings
 
 
+def print_json(readings, timestamp):
+    """ Log data in json strings with timestamp
+    """
+    json_values = json.dumps(readings)
+    logline = "%s %s" % (timestamp, json_values)
+    logging.info(logline)
+
+
+def print_keyvalue(readings, timestamp):
+    """ Log data in Splunk-friendly key=value pairs
+    """
+    for channel in readings:
+        keyvalues = []
+        for key, value in readings[channel].iteritems():
+            keyvalues.append("%s=%s" % (key.replace(' ', ''), value))
+        logline = "%s %s" % (timestamp, ', '.join(keyvalues))
+        logging.info(logline)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Fetch Neurio sensor data')
     parser.add_argument(
-        '--ip', type=str, help='IP address of sensor', required=True)
+        '-i', '--ip', type=str, help='IP address of sensor', required=True)
     parser.add_argument(
-        '--format', type=str, help='Format to output readings in',
+        '-f', '--format', type=str, help='Format to output readings in',
         choices=['json', 'kv'], required=True)
     parser.add_argument(
-        '--type', type=str, help='Which readings to output',
+        '-t', '--type', type=str, help='Which readings to output',
         choices=['raw', 'sensor'], required=True)
+    parser.add_argument(
+        '-o', '--outputfile', type=str, help='File to log to',
+        default='output.log')
     parser.add_argument(
         '--local', action='store_true',
         help='Return timestamps using local system time instead of UTC')
     args = parser.parse_args()
+
+    logging.basicConfig(
+        level=logging.INFO, format='%(message)s', filename=args.outputfile)
+    console = logging.StreamHandler()
+    console.setLevel(logging.INFO)
+    logging.getLogger('').addHandler(console)
 
     url = 'http://%s/both_tables.html' % args.ip
     (timestamp, data) = fetch_page(url, localtime=args.local)
