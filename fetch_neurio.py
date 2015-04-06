@@ -82,12 +82,22 @@ def get_sensor_readings(parsed_data):
     return sensor_readings
 
 
-def print_json(readings, timestamp):
+def print_json_log(readings, timestamp):
     """ Log data in json strings with timestamp
     """
     json_values = json.dumps(readings)
     logline = "%s %s" % (timestamp, json_values)
     logging.info(logline)
+
+
+def readings_as_json(ip, local=False):
+    """Return readings as a json string"""
+    url = 'http://%s/both_tables.html' % ip
+    (timestamp, data) = fetch_page(url, localtime=local)
+    parsed_data = parse_readings(data)
+    readings = get_sensor_readings(parsed_data)
+    readings['timestamp'] = timestamp.isoformat()
+    return json.dumps(readings)
 
 
 def print_keyvalue(readings, timestamp):
@@ -135,6 +145,6 @@ if __name__ == "__main__":
         readings = get_sensor_readings(parsed_data)
 
     if args.format == 'json':
-        print_json(readings, timestamp.isoformat())
+        print_json_log(readings, timestamp.isoformat())
     elif args.format == 'kv':
         print_keyvalue(readings, timestamp.isoformat())
