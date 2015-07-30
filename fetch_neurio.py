@@ -82,12 +82,24 @@ def get_sensor_readings(parsed_data):
     return sensor_readings
 
 
+def strip_json_key_spaces(json_dict):
+    if type(json_dict) == dict:
+        clean_json_dict = {}
+        for key,value in json_dict.iteritems():
+            value = strip_json_key_spaces(value)
+            new_key = key.replace(' ', '')
+            clean_json_dict[new_key] = value
+        return clean_json_dict
+    else:
+        return json_dict
+
 def print_json_log(readings, timestamp):
     """ Log data in json strings with timestamp
     """
+    readings = strip_json_key_spaces(readings)
+    readings['timestamp'] = timestamp
     json_values = json.dumps(readings)
-    logline = "%s %s" % (timestamp, json_values)
-    logging.info(logline)
+    logging.info(json_values)
 
 
 def readings_as_json(ip, local=False):
@@ -127,6 +139,8 @@ if __name__ == "__main__":
     parser.add_argument(
         '--local', action='store_true',
         help='Return timestamps using local system time instead of UTC')
+    parser.add_argument('--json_string', action='store_true',
+                        help='Return just a json string')
     args = parser.parse_args()
 
     logging.basicConfig(
