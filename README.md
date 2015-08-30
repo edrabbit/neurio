@@ -13,6 +13,7 @@ Retrieve your Neurio sensor data directly from the sensor itself.
       --ip IP              IP address of sensor
       --format {json,kv}   Format to output readings in
       --type {raw,sensor}  Which readings to output
+      -o [filepath]        Output readings to log file
       --local              Return timestamps using local system time instead of
                            UTC
 

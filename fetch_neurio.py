@@ -134,8 +134,7 @@ if __name__ == "__main__":
         '-t', '--type', type=str, help='Which readings to output',
         choices=['raw', 'sensor'], required=True)
     parser.add_argument(
-        '-o', '--outputfile', type=str, help='File to log to',
-        default='output.log')
+        '-o', '--outputfile', type=str, help='File to log to')
     parser.add_argument(
         '--local', action='store_true',
         help='Return timestamps using local system time instead of UTC')
@@ -147,7 +146,9 @@ if __name__ == "__main__":
         level=logging.INFO, format='%(message)s', filename=args.outputfile)
     console = logging.StreamHandler()
     console.setLevel(logging.INFO)
-    logging.getLogger('').addHandler(console)
+    
+    if not args.outputfile:
+        logging.getLogger('').addHandler(console)
 
     url = 'http://%s/both_tables.html' % args.ip
     (timestamp, data) = fetch_page(url, localtime=args.local)
